@@ -8,6 +8,7 @@
         {
             this.name = name;
             this.coordinate = coordinate;
+            passengerList = new List<Player>();
         }
 
         private string name;
@@ -29,7 +30,7 @@
                 return true;
             }
 
-            if(PassengerList.Count < 3)
+            if(PassengerList.Count < 3 && !PassengerList.Contains(player) && Driver != player)
             {
                 PassengerList.Add(player);
                 return true;
@@ -38,6 +39,12 @@
             {
                 return false;
             }
+        }
+        public override string ToString()
+        {
+            return $@"Машина {name}
+                        Пассажиры {String.Join(", ", passengerList.Select(x => x.Nickname))}
+                        Водитель {Driver.Nickname}";
         }
     }
 }
