@@ -171,17 +171,16 @@
         /// <param name="car">Автомобиль</param>
         /// <param name="maxLength">Максимальное расстояние от машины</param>
         /// <returns></returns>
-        public Dictionary<Player, Double> GetNearbyPlayer(Car car, double maxLength, int count)
+        public Dictionary<Player, Double> GetNearbyPlayer(Car car, double maxLength)
         {
             Dictionary<Player, Double> _players = new Dictionary<Player, double>();
-            for (int j = 0, i = 0; j < count && i < players.Count; i++)
+            for (int i = 0;i < players.Count; i++)
             {
                 Player player = Players[i];
                 double length = Coordinate.Length(player.Coordinate, car.Coordinate);
                 if (length <= maxLength)
                 {
                     _players.Add(player, length);
-                    j++;
                 }
             }
             return _players;
