@@ -2,7 +2,6 @@
 {
     public class Car
     {
-        public Car() { }
 
         public Car(string name, Coordinate coordinate)
         {
@@ -21,6 +20,13 @@
         public Player Driver { get => driver; set => driver = value; }
         public List<Player> PassengerList { get => passengerList; }
 
+        /// <summary>
+        /// Добавления Игрока в машину.
+        /// В первую очередь добавляется водитель,
+        /// потом занимаются поссажирские места(макс 3.)
+        /// </summary>
+        /// <param name="player">Добавляемый игрок</param>
+        /// <returns></returns>
         public bool AddPlayer(Player player)
         {
             player.Coordinate = Coordinate;
@@ -42,9 +48,11 @@
         }
         public override string ToString()
         {
-            return $@"Машина {name}
-                        Пассажиры {String.Join(", ", passengerList.Select(x => x.Nickname))}
-                        Водитель {Driver.Nickname}";
+            return $@"
+                    Машина: {name}
+                    Координаты: X = {Coordinate.X}; Y = {Coordinate.Y}
+                    Пассажиры: {String.Join(", ", passengerList.Select(x => x.Nickname))}
+                    Водитель: {(Driver != null ? Driver.Nickname:"Водитель отсутствует")}";
         }
     }
 }

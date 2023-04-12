@@ -1,64 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TestWork_VibeGames
+﻿namespace TestWork_VibeGames
 {
     public class Game
     {
-        #region Поля
+        #region Поля и свойтства
         List<Car> cars = new List<Car>();
         List<Player> players = new List<Player>();
         AutoResetEvent waitHandler = new AutoResetEvent(true);
-        double minCoord = 0.0d;
-        double maxCoord = 100.0d;
-        Thread myThread = null;
-
-        public List<Car> Cars { get => cars; set => cars = value; }
-        public List<Player> Players { get => players; set => players = value; }
-        public Thread MyThread { get => myThread; set => myThread = value; }
-        #endregion
-
-        #region Методы
-        public void Init()
-        {
-            Players.Clear();
-            Cars.Clear();
-
-            MyThread = new(AddPlayerInCar);
-            Console.WriteLine("Запущен поток 1");
-            MyThread.Start();
-            
-            AddRandomCar();
-            AddRandomPlayer();
-#if DEBUG
-            while (true)
-            {
-                Thread.Sleep(2000);
-                if (MyThread.IsAlive)
-                {
-                    Console.WriteLine($"поток 1 работает {MyThread.ThreadState}");
-                }
-                else
-                {
-                    //Console.WriteLine($"поток 1 не работает {myThread.ThreadState}");
-                    //Console.WriteLine($"{String.Join(", \n", GetRandomCar())}");
-                    //Random random = new Random();
-                    //Car _car = cars[random.Next(cars.Count)];
-                    //Console.WriteLine("\n");
-                    //Console.WriteLine($@"{GetNearbyPlayer(_car)}");
-                    break;
-                }
-            }
-#endif
-        }
-        private void AddRandomCar()
-        {
-            Console.WriteLine("Началось добавление рандомных машин");
-            string[] nameCar = new string[]
+        string[] nameCar = new string[]
             {
                 "Lada",
                 "Skoda",
@@ -67,28 +15,7 @@ namespace TestWork_VibeGames
                 "Honda",
                 "Shaha"
             };
-            List<Car> _cars = new List<Car>();
-            Random rnd = new Random();
-            string name = "";
-            Coordinate coordinate = new Coordinate();
-            for (int j = 1; j < 3; j++)
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    coordinate = GerRandomCoordinate();
-                    name = nameCar[rnd.Next(nameCar.Length)] + i * j;
-                    Cars.Add(new Car(name, coordinate));
-                }
-                Console.WriteLine($"Добавлено {Cars.Count} машин");
-                Cars.AddRange(_cars);
-                _cars.Clear();
-            }
-        }
-
-        private void AddRandomPlayer()
-        {
-            Console.WriteLine("Началось добавление рандомных игроков");
-            string[] namePlayer = new string[]
+        string[] namePlayer = new string[]
             {
             "Sergio",
             "Billy",
@@ -98,6 +25,70 @@ namespace TestWork_VibeGames
             "Inoske",
             "Narutooooo"
             };
+        //double minCoord = 0.0d;
+        double maxCoord = 100.0d;
+        Thread myThread = null;
+
+        public List<Car> Cars { get => cars; set => cars = value; }
+        public List<Player> Players { get => players; set => players = value; }
+        public Thread MyThread { get => myThread; set => myThread = value; }
+        public AutoResetEvent WaitHandler { get => waitHandler; set => waitHandler = value; }
+        public string[] NameCar { get => nameCar;}
+        public string[] NamePlayer { get => namePlayer; }
+        #endregion
+
+        #region Методы
+
+        /// <summary>
+        /// Метод инициилизации данных
+        /// </summary>
+        public void Init()
+        {
+            Players.Clear();
+            Cars.Clear();
+
+            MyThread = new(AddPlayerInCar);
+            Console.WriteLine("Запущен поток 1");
+            MyThread.Start();
+            
+            AddRandomCar(NameCar);
+            AddRandomPlayer(NamePlayer);
+            WaitHandler.WaitOne();
+
+        }
+
+        /// <summary>
+        /// Создание и добавление рандомных машин поле cars 
+        /// </summary>
+        private void AddRandomCar(string[] nameCar)
+        {
+            Console.WriteLine("Началось добавление рандомных машин");
+            
+            List<Car> _cars = new List<Car>();
+            Random rnd = new Random();
+            string name = "";
+            Coordinate coordinate = new Coordinate();
+            for (int j = 1; j < 3; j++)
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    coordinate = Coordinate.GerRandomCoordinate(maxCoord);
+                    name = nameCar[rnd.Next(nameCar.Length)] + i * j;
+                    Cars.Add(new Car(name, coordinate));
+                }
+                Console.WriteLine($"Добавлено {Cars.Count} машин");
+                Cars.AddRange(_cars);
+                _cars.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Создание и добавление рандомных игроков в поле players
+        /// </summary>
+        private void AddRandomPlayer(string[] namePlayer)
+        {
+
+            Console.WriteLine("Началось добавление рандомных игроков");
             List<Player> _players = new List<Player>();
             Random rnd = new Random();
             string nickName = "";
@@ -107,27 +98,20 @@ namespace TestWork_VibeGames
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    coordinate = GerRandomCoordinate();
+                    coordinate = Coordinate.GerRandomCoordinate(maxCoord);
                     nickName = namePlayer[rnd.Next(namePlayer.Length)] + "_" + rnd.Next(65, 91);
                     _players.Add(new Player(nickName, coordinate));
                 }
                 Players.AddRange(_players);
                 Console.WriteLine($"Добавлено {Players.Count} игроков");
                 _players.Clear();
-                waitHandler.Set();
+                WaitHandler.Set();
             }
+            WaitHandler.WaitOne();
         }
-        private Coordinate GerRandomCoordinate()
-        {
-            Random rnd = new Random();
-            Coordinate coordinate = new Coordinate();
-            coordinate = new Coordinate(rnd.NextDouble() +
-                    rnd.Next((int)maxCoord - 1),
-                    rnd.NextDouble() +
-                    rnd.Next((int)maxCoord - 1));
-            return coordinate;
-        }
-
+        /// <summary>
+        /// Добавление игроков в автомобили
+        /// </summary>
         private void AddPlayerInCar()
         {
             List<Player> _players = Players;
@@ -136,59 +120,64 @@ namespace TestWork_VibeGames
             List<Car> fullCar = new List<Car>();
             while (Cars.Count == 0 || Players.Count == 0)
             {
-                waitHandler.WaitOne();
                 Console.WriteLine($"Поток 1 простаивает из-за отсутствия игроков и машин");
+                WaitHandler.WaitOne();
             }
             for (int i = 0; i < Cars.Count; i++)
             {
                 
                 Car car = Cars[i];
-                Console.WriteLine($"Поток 1 начал добавление в машину {car.Name}");
+                Console.WriteLine($"Поток 1 начал добавление в машину {car.Name}\n");
                 for (int j = 0; j < _players.Count; j++)
                 {
                     Player player = _players[j];
                     if (!car.AddPlayer(player))
                     {
                         fullCar.Add(car);
-                        Console.WriteLine($"Место в машине {car.Name} закончилось");
+                        Console.WriteLine($"Место в машине {car.Name} закончилось\n");
                         break;
                     }
                     addedPlayers.Add(player);
-                    Console.WriteLine($"Поток доавил игрока {player.Nickname} в машину {car.Name}");
+                    Console.WriteLine($"Поток добавил игрока {player.Nickname} в машину {car.Name}");
                 }
-                //waitHandler.Set();
 
                 _players = new List<Player>(Players);
                 _players.RemoveAll((x) => addedPlayers.Contains(x));
                 _cars = new List<Car>(Cars);
                 _cars.RemoveAll((x) =>  fullCar.Contains(x));
             }
-            Console.WriteLine("Остановка потока 1");
-            waitHandler.Close();
+            Console.WriteLine($"Поток 1 завершает работу");
+            WaitHandler.Set();
 
         }
-
-        public List<Car> GetRandomCar()
+        /// <summary>
+        /// Поучение N ранодомных машин из поля cars
+        /// </summary>
+        /// <param name="count">Кол-во машин</param>
+        /// <returns></returns>
+        public List<Car> GetRandomCar(int count)
         {
             List<Car> _cars = new List<Car>();
             Random random = new Random();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < count; i++)
             {
                 _cars.Add(Cars[random.Next(Cars.Count)]);
             }
             return _cars;
         }
-
-        public Dictionary<Player, Double> GetNearbyPlayer(Car car)
+        /// <summary>
+        /// Получение игроков находящихся ближе N от Машины
+        /// </summary>
+        /// <param name="car">Автомобиль</param>
+        /// <param name="maxLength">Максимальное расстояние от машины</param>
+        /// <returns></returns>
+        public Dictionary<Player, Double> GetNearbyPlayer(Car car, double maxLength)
         {
-            //Random random = new Random();
-            //List<Player> _players = new List<Player>();
             Dictionary<Player, Double> _players = new Dictionary<Player, double>();
-            //Car _car = cars[random.Next(cars.Count)];
             foreach (Player player in Players)
             {
                 double length = Coordinate.Length(player.Coordinate, car.Coordinate);
-                if (length <= 15.0d)
+                if (length <= maxLength)
                 _players.Add(player, length);
             }
             return _players;
