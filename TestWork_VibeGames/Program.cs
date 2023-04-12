@@ -20,7 +20,7 @@ namespace TestWork_VibeGames
             Console.WriteLine("\n Случайная машина \n");
             Console.WriteLine(_car);
             Console.WriteLine("\nИгроки находящийеся ближе 15 единиц:\n");
-            foreach(var dict in game.GetNearbyPlayer(_car, 15.0d))
+            foreach(var dict in game.GetNearbyPlayer(_car, 15.0d, 15))
             {
                 Console.WriteLine(@$"{dict.Key.Nickname}: {dict.Value}");
             }
